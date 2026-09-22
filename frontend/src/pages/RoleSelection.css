@@ -1,0 +1,78 @@
+.role-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: #f4f7fb;
+}
+
+.role-card {
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    padding: 45px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.role-icon {
+    font-size: 50px;
+    margin-bottom: 10px;
+}
+
+.role-card h1 {
+    color: #1e3a8a;
+    margin-bottom: 10px;
+}
+
+.role-subtitle {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.role-options {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.role-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 18px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    text-align: left;
+    transition: 0.2s;
+}
+
+.role-btn > span {
+    font-size: 32px;
+}
+
+.role-btn div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.role-btn strong {
+    font-size: 18px;
+}
+
+.role-btn small {
+    color: #666;
+}
+
+.student-btn:hover,
+.admin-btn:hover {
+    border-color: #2563eb;
+    background: #f8faff;
+    transform: translateY(-2px);
+}
