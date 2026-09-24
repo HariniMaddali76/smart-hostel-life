@@ -1,175 +1,382 @@
-.student-dashboard {
+/* =========================================
+   MAIN STUDENT LAYOUT
+========================================= */
+
+.student-layout {
     min-height: 100vh;
-    background: #f4f7fb;
+    display: flex;
+    background: #f5f7fb;
+    color: #1f2937;
 }
 
-/* Navbar */
+/* =========================================
+   SIDEBAR
+========================================= */
 
-.dashboard-navbar {
-    height: 70px;
-    background: #1e3a8a;
+.student-sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background: #1f2a44;
     color: white;
+
+    padding: 25px 15px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.student-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    font-size: 21px;
+    font-weight: 700;
+
+    padding: 10px 15px 30px;
+}
+
+.student-sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.student-sidebar-item {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 13px 15px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: transparent !important;
+    color: #dbe4f5 !important;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.student-sidebar-item:hover {
+    background: #2f3d60 !important;
+    color: white !important;
+}
+
+.student-sidebar-item.active {
+    background: #4f63c6 !important;
+    color: white !important;
+}
+
+.student-sidebar-icon {
+    width: 25px;
+    text-align: center;
+    font-size: 18px;
+}
+
+/* Logout */
+
+.student-logout-item {
+    margin-top: auto;
+}
+
+/* =========================================
+   MAIN CONTENT
+========================================= */
+
+.student-main {
+    margin-left: 240px;
+
+    width: calc(100% - 240px);
+
+    min-height: 100vh;
+
+    box-sizing: border-box;
+}
+
+/* =========================================
+   TOP BAR
+========================================= */
+
+.student-topbar {
+    height: 85px;
+
+    background: white;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    padding: 0 35px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    padding: 0 50px;
+    box-sizing: border-box;
 }
 
-.brand {
-    font-size: 22px;
-    font-weight: 700;
+.student-topbar h1 {
+    margin: 0;
+
+    font-size: 25px;
+
+    color: #1f2937;
 }
 
-.logout-btn {
-    border: none;
-    background: white;
-    color: #1e3a8a;
+.student-topbar p {
+    margin: 5px 0 0;
 
-    padding: 10px 20px;
-
-    border-radius: 6px;
+    color: #6b7280;
 
     font-size: 14px;
+}
+
+.student-profile {
+    background: #eef2ff;
+
+    color: #3730a3;
+
+    padding: 10px 16px;
+
+    border-radius: 20px;
+
+    font-weight: 600;
+}
+
+/* =========================================
+   CONTENT SECTION
+========================================= */
+
+.student-content-section {
+    padding: 35px;
+}
+
+.student-section-title {
+    margin: 0 0 20px;
+
+    font-size: 24px;
+
+    color: #1f2937;
+}
+
+/* =========================================
+   WELCOME CARD
+========================================= */
+
+.student-welcome-card {
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+
+    margin-bottom: 30px;
+}
+
+.student-welcome-card h2 {
+    margin: 0 0 8px;
+
+    color: #1f2937;
+}
+
+.student-welcome-card p {
+    color: #6b7280;
+
+    margin: 0;
+}
+
+/* =========================================
+   STUDENT INFORMATION
+========================================= */
+
+.student-info-card {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 20px;
+
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 14px;
+
+    margin-bottom: 30px;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.student-info-card div {
+    padding: 15px;
+
+    background: #f8faff;
+
+    border-radius: 10px;
+}
+
+.student-info-card span {
+    display: block;
+
+    color: #6b7280;
+
+    font-size: 13px;
+
+    margin-bottom: 6px;
+}
+
+.student-info-card strong {
+    color: #1f2937;
+}
+
+/* =========================================
+   SERVICE CARDS
+========================================= */
+
+.student-services-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 20px;
+}
+
+.student-service-card {
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 14px;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+
+    transition: 0.2s;
+}
+
+.student-service-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.student-service-icon {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 12px;
+
+    background: #eef2ff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 23px;
+
+    margin-bottom: 15px;
+}
+
+.student-service-card h3 {
+    margin: 0 0 8px;
+
+    color: #1f2937;
+}
+
+.student-service-card p {
+    margin: 0;
+
+    color: #6b7280;
+
+    line-height: 1.5;
+}
+
+/* =========================================
+   BUTTON
+========================================= */
+
+.student-action-btn {
+    margin-top: 20px;
+
+    border: none;
+
+    padding: 12px 20px;
+
+    border-radius: 8px;
+
+    background: #4f46e5;
+
+    color: white;
+
     font-weight: 600;
 
     cursor: pointer;
 }
 
-.logout-btn:hover {
-    background: #e5e7eb;
+.student-action-btn:hover {
+    background: #4338ca;
 }
 
-/* Main */
+/* =========================================
+   RESPONSIVE
+========================================= */
 
-.dashboard-content {
-    max-width: 1200px;
-    margin: auto;
+@media (max-width: 1000px) {
 
-    padding: 40px 30px;
-}
-
-.welcome-section h1 {
-    margin-bottom: 8px;
-    color: #1f2937;
-}
-
-.welcome-section p {
-    color: #6b7280;
-    margin-bottom: 30px;
-}
-
-/* User information */
-
-.user-info-card {
-    background: white;
-
-    padding: 25px;
-
-    border-radius: 12px;
-
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-
-    gap: 20px;
-
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
-
-    margin-bottom: 40px;
-}
-
-.user-info-card div {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.user-info-card span {
-    font-size: 13px;
-    color: #6b7280;
-}
-
-.user-info-card strong {
-    color: #1f2937;
-}
-
-/* Services */
-
-.section-title {
-    margin-bottom: 20px;
-    color: #1f2937;
-}
-
-.services-grid {
-    display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
-    gap: 20px;
-}
-
-.service-card {
-    background: white;
-
-    padding: 25px;
-
-    border-radius: 12px;
-
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
-
-    transition: transform 0.2s ease;
-}
-
-.service-card:hover {
-    transform: translateY(-4px);
-}
-
-.service-icon {
-    font-size: 32px;
-    margin-bottom: 12px;
-}
-
-.service-card h3 {
-    margin-bottom: 8px;
-    color: #1f2937;
-}
-
-.service-card p {
-    color: #6b7280;
-    line-height: 1.5;
-}
-
-/* Responsive */
-
-@media (max-width: 900px) {
-
-    .services-grid {
+    .student-services-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .user-info-card {
-        grid-template-columns: 1fr;
+    .student-info-card {
+        grid-template-columns: repeat(2, 1fr);
     }
-
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
 
-    .dashboard-navbar {
+    .student-sidebar {
+        width: 190px;
+    }
+
+    .student-main {
+        margin-left: 190px;
+
+        width: calc(100% - 190px);
+    }
+
+    .student-topbar {
         padding: 0 20px;
     }
 
-    .brand {
-        font-size: 18px;
+    .student-topbar h1 {
+        font-size: 20px;
     }
 
-    .dashboard-content {
-        padding: 30px 20px;
+    .student-profile {
+        display: none;
     }
 
-    .services-grid {
+    .student-content-section {
+        padding: 25px 20px;
+    }
+
+    .student-services-grid,
+    .student-info-card {
         grid-template-columns: 1fr;
     }
-
 }

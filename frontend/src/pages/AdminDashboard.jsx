@@ -5,10 +5,16 @@ import "./AdminDashboard.css";
 function AdminDashboard() {
     const user = JSON.parse(localStorage.getItem("user"));
 
+    const [activeSection, setActiveSection] = useState("dashboard");
+
     const [rooms, setRooms] = useState([]);
     const [students, setStudents] = useState([]);
     const [complaints, setComplaints] = useState([]);
     const [messMenus, setMessMenus] = useState([]);
+
+    const [aiInsights, setAiInsights] = useState(null);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiError, setAiError] = useState("");
 
     const [formData, setFormData] = useState({
         roomNumber: "",
@@ -31,7 +37,10 @@ function AdminDashboard() {
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
 
-    // Fetch rooms
+    // =========================
+    // FETCH DATA
+    // =========================
+
     const fetchRooms = async () => {
         try {
             const response = await api.get("/rooms");
@@ -41,7 +50,6 @@ function AdminDashboard() {
         }
     };
 
-    // Fetch students
     const fetchStudents = async () => {
         try {
             const response = await api.get("/users/students");
@@ -51,13 +59,9 @@ function AdminDashboard() {
         }
     };
 
-    // Fetch complaints
     const fetchComplaints = async () => {
         try {
             const response = await api.get("/complaints");
-
-            console.log("ADMIN COMPLAINTS:", response.data);
-
             setComplaints(response.data);
         } catch (error) {
             console.error("COMPLAINT FETCH ERROR:", error);
@@ -65,7 +69,6 @@ function AdminDashboard() {
         }
     };
 
-    // Fetch mess menus
     const fetchMessMenus = async () => {
         try {
             const response = await api.get("/mess");
@@ -75,12 +78,15 @@ function AdminDashboard() {
         }
     };
 
+    // =========================
+    // INITIAL LOAD
+    // =========================
+
     useEffect(() => {
         fetchRooms();
         fetchStudents();
-        fetchMessMenus();
-
         fetchComplaints();
+        fetchMessMenus();
 
         const complaintInterval = setInterval(() => {
             fetchComplaints();
@@ -91,7 +97,34 @@ function AdminDashboard() {
         };
     }, []);
 
-    // Room form changes
+    // =========================
+    // AI INSIGHTS
+    // =========================
+
+    const fetchAIInsights = async () => {
+        try {
+            setAiLoading(true);
+            setAiError("");
+
+            const response = await api.get("/ai/insights");
+
+            setAiInsights(response.data.insights);
+        } catch (error) {
+            console.error("AI Insights Error:", error);
+
+            setAiError(
+                error.response?.data?.message ||
+                "Failed to generate AI insights"
+            );
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
+    // =========================
+    // FORM HANDLERS
+    // =========================
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -99,7 +132,6 @@ function AdminDashboard() {
         });
     };
 
-    // Assignment form changes
     const handleAssignmentChange = (e) => {
         setAssignmentData({
             ...assignmentData,
@@ -107,7 +139,6 @@ function AdminDashboard() {
         });
     };
 
-    // Mess form changes
     const handleMessChange = (e) => {
         setMessFormData({
             ...messFormData,
@@ -115,7 +146,10 @@ function AdminDashboard() {
         });
     };
 
-    // Create room
+    // =========================
+    // CREATE ROOM
+    // =========================
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -149,7 +183,10 @@ function AdminDashboard() {
         }
     };
 
-    // Assign student to room
+    // =========================
+    // ASSIGN STUDENT
+    // =========================
+
     const handleAssignRoom = async (e) => {
         e.preventDefault();
 
@@ -182,7 +219,10 @@ function AdminDashboard() {
         }
     };
 
-    // Update complaint status
+    // =========================
+    // COMPLAINT STATUS
+    // =========================
+
     const handleComplaintStatus = async (complaintId, status) => {
         try {
             await api.put(
@@ -202,7 +242,10 @@ function AdminDashboard() {
         }
     };
 
-    // Add Mess Menu
+    // =========================
+    // ADD MESS MENU
+    // =========================
+
     const handleMessSubmit = async (e) => {
         e.preventDefault();
 
@@ -230,7 +273,10 @@ function AdminDashboard() {
         }
     };
 
-    // Delete Mess Menu
+    // =========================
+    // DELETE MESS
+    // =========================
+
     const handleDeleteMess = async (id) => {
         setMessage("");
         setError("");
@@ -250,7 +296,10 @@ function AdminDashboard() {
         }
     };
 
-    // Logout
+    // =========================
+    // LOGOUT
+    // =========================
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -258,438 +307,927 @@ function AdminDashboard() {
         window.location.href = "/";
     };
 
+    // =========================
+    // SIDEBAR
+    // =========================
+
+    const menuItems = [
+        {
+            id: "dashboard",
+            icon: "🏠",
+            label: "Dashboard"
+        },
+        {
+            id: "rooms",
+            icon: "🛏️",
+            label: "Rooms"
+        },
+        {
+            id: "students",
+            icon: "👨‍🎓",
+            label: "Students"
+        },
+        {
+            id: "mess",
+            icon: "🍴",
+            label: "Mess Menu"
+        },
+        {
+            id: "ai",
+            icon: "🤖",
+            label: "AI Insights"
+        },
+        {
+            id: "complaints",
+            icon: "🛠️",
+            label: "Complaints"
+        }
+    ];
+
     return (
-        <div className="admin-dashboard">
+        <div className="admin-layout">
 
-            <div className="admin-header">
-                <div>
-                    <h1>🏠 Admin / Warden Dashboard</h1>
-                    <p>Welcome, <strong>{user?.name}</strong></p>
-                    <p>{user?.email}</p>
-                </div>
-            </div>
+            {/* =========================
+                SIDEBAR
+            ========================= */}
 
-            <hr />
+            <aside className="admin-sidebar">
 
-            {/* Create Room */}
-
-            <h2 className="admin-section-title">🏠 Create Hostel Room</h2>
-
-            {message && (
-                <p style={{ color: "green" }}>
-                    {message}
-                </p>
-            )}
-
-            {error && (
-                <p style={{ color: "red" }}>
-                    {error}
-                </p>
-            )}
-
-            <form onSubmit={handleSubmit}>
-
-                <div>
-                    <label>Room Number</label>
-                    <br />
-
-                    <input
-                        type="text"
-                        name="roomNumber"
-                        placeholder="Example: A101"
-                        value={formData.roomNumber}
-                        onChange={handleChange}
-                        required
-                    />
+                <div className="sidebar-brand">
+                    🏠
+                    <span>Smart Hostel</span>
                 </div>
 
-                <br />
+                <nav className="sidebar-menu">
 
-                <div>
-                    <label>Block</label>
-                    <br />
+                    {menuItems.map((item) => (
+                        <button
+                            key={item.id}
+                            className={
+                                activeSection === item.id
+                                    ? "sidebar-item active"
+                                    : "sidebar-item"
+                            }
+                            onClick={() => {
+                                setActiveSection(item.id);
+                                setMessage("");
+                                setError("");
+                            }}
+                        >
+                            <span className="sidebar-icon">
+                                {item.icon}
+                            </span>
 
-                    <input
-                        type="text"
-                        name="block"
-                        placeholder="Example: A Block"
-                        value={formData.block}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+                            <span>{item.label}</span>
+                        </button>
+                    ))}
 
-                <br />
+                </nav>
 
-                <div>
-                    <label>Floor</label>
-                    <br />
-
-                    <input
-                        type="number"
-                        name="floor"
-                        placeholder="Example: 1"
-                        value={formData.floor}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-
-                <br />
-
-                <div>
-                    <label>Capacity</label>
-                    <br />
-
-                    <input
-                        type="number"
-                        name="capacity"
-                        placeholder="Example: 4"
-                        min="1"
-                        value={formData.capacity}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-
-                <br />
-
-                <button type="submit">
-                    Create Room
+                <button
+                    className="sidebar-item logout-item"
+                    onClick={handleLogout}
+                >
+                    <span className="sidebar-icon">🚪</span>
+                    <span>Logout</span>
                 </button>
 
-            </form>
+            </aside>
 
-            <hr />
+            {/* =========================
+                MAIN CONTENT
+            ========================= */}
 
-            {/* Assign Student */}
+            <main className="admin-main">
 
-            <h2 className="admin-section-title">👨‍🎓 Assign Student to Room</h2>
+                {/* HEADER */}
 
-            <form onSubmit={handleAssignRoom}>
+                <header className="admin-topbar">
 
-                <div>
-                    <label>Student</label>
-                    <br />
+                    <div>
+                        <h1>Admin / Warden Dashboard</h1>
+                        <p>
+                            Welcome, <strong>{user?.name}</strong>
+                        </p>
+                    </div>
 
-                    <select
-                        name="studentId"
-                        value={assignmentData.studentId}
-                        onChange={handleAssignmentChange}
-                        required
-                    >
-                        <option value="">
-                            Select Student
-                        </option>
+                    <div className="admin-profile">
+                        👤 {user?.name}
+                    </div>
 
-                        {students.map((student) => (
-                            <option
-                                key={student._id}
-                                value={student._id}
+                </header>
+
+                {/* GLOBAL MESSAGES */}
+
+                {message && (
+                    <div className="success-message">
+                        {message}
+                    </div>
+                )}
+
+                {error && (
+                    <div className="error-message">
+                        {error}
+                    </div>
+                )}
+
+                {/* =========================
+                    DASHBOARD
+                ========================= */}
+
+                {activeSection === "dashboard" && (
+                    <section className="dashboard-section">
+
+                        <h2>Dashboard Overview</h2>
+
+                        <p className="section-description">
+                            Manage hostel rooms, students, mess,
+                            complaints and AI-powered insights.
+                        </p>
+
+                        <div className="overview-grid">
+
+                            <div className="overview-card">
+                                <div className="overview-icon">
+                                    🛏️
+                                </div>
+
+                                <div>
+                                    <h3>{rooms.length}</h3>
+                                    <p>Total Rooms</p>
+                                </div>
+                            </div>
+
+                            <div className="overview-card">
+                                <div className="overview-icon">
+                                    👨‍🎓
+                                </div>
+
+                                <div>
+                                    <h3>{students.length}</h3>
+                                    <p>Students</p>
+                                </div>
+                            </div>
+
+                            <div className="overview-card">
+                                <div className="overview-icon">
+                                    🛠️
+                                </div>
+
+                                <div>
+                                    <h3>{complaints.length}</h3>
+                                    <p>Complaints</p>
+                                </div>
+                            </div>
+
+                            <div className="overview-card">
+                                <div className="overview-icon">
+                                    🍴
+                                </div>
+
+                                <div>
+                                    <h3>{messMenus.length}</h3>
+                                    <p>Mess Items</p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div className="welcome-card">
+                            <h2>Welcome to Smart Hostel Life 👋</h2>
+
+                            <p>
+                                Use the sidebar to manage rooms,
+                                students, mess menus and complaints.
+                            </p>
+
+                            <button
+                                onClick={() =>
+                                    setActiveSection("ai")
+                                }
                             >
-                                {student.name} - {student.email}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                                🤖 Open AI Insights
+                            </button>
+                        </div>
 
-                <br />
+                    </section>
+                )}
 
-                <div>
-                    <label>Room</label>
-                    <br />
+                {/* =========================
+                    ROOMS
+                ========================= */}
 
-                    <select
-                        name="roomId"
-                        value={assignmentData.roomId}
-                        onChange={handleAssignmentChange}
-                        required
-                    >
-                        <option value="">
-                            Select Room
-                        </option>
+                {activeSection === "rooms" && (
+                    <section className="content-section">
 
-                        {rooms
-                            .filter(
-                                (room) =>
-                                    room.occupiedBeds < room.capacity
-                            )
-                            .map((room) => (
-                                <option
-                                    key={room._id}
-                                    value={room._id}
-                                >
-                                    {room.roomNumber} - {room.block}
-                                    {" "}
-                                    (Available:{" "}
-                                    {room.capacity - room.occupiedBeds})
-                                </option>
-                            ))}
-                    </select>
-                </div>
+                        <h2>🛏️ Hostel Rooms</h2>
 
-                <br />
+                        <div className="form-card">
 
-                <button type="submit">
-                    Assign Room
-                </button>
+                            <h3>🏠 Create Hostel Room</h3>
 
-            </form>
+                            <form onSubmit={handleSubmit}>
 
-            <hr />
+                                <div className="form-grid">
 
-            {/* Rooms */}
+                                    <div>
+                                        <label>Room Number</label>
 
-            <h2 className="admin-section-title">🛏️ Hostel Rooms</h2>
+                                        <input
+                                            type="text"
+                                            name="roomNumber"
+                                            placeholder="Example: A101"
+                                            value={formData.roomNumber}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
 
-            {rooms.length === 0 ? (
-                <p>No rooms available.</p>
-            ) : (
-                <table border="1" cellPadding="10">
+                                    <div>
+                                        <label>Block</label>
 
-                    <thead>
-                        <tr>
-                            <th>Room Number</th>
-                            <th>Block</th>
-                            <th>Floor</th>
-                            <th>Capacity</th>
-                            <th>Occupied</th>
-                            <th>Available</th>
-                            <th>Students</th>
-                        </tr>
-                    </thead>
+                                        <input
+                                            type="text"
+                                            name="block"
+                                            placeholder="Example: A Block"
+                                            value={formData.block}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
 
-                    <tbody>
+                                    <div>
+                                        <label>Floor</label>
 
-                        {rooms.map((room) => (
-                            <tr key={room._id}>
+                                        <input
+                                            type="number"
+                                            name="floor"
+                                            placeholder="Example: 1"
+                                            value={formData.floor}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
 
-                                <td>{room.roomNumber}</td>
+                                    <div>
+                                        <label>Capacity</label>
 
-                                <td>{room.block}</td>
+                                        <input
+                                            type="number"
+                                            name="capacity"
+                                            placeholder="Example: 4"
+                                            min="1"
+                                            value={formData.capacity}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
 
-                                <td>{room.floor}</td>
+                                </div>
 
-                                <td>{room.capacity}</td>
+                                <button type="submit">
+                                    Create Room
+                                </button>
 
-                                <td>{room.occupiedBeds}</td>
+                            </form>
 
-                                <td>
-                                    {room.capacity -
-                                        room.occupiedBeds}
-                                </td>
+                        </div>
 
-                                <td>
-                                    {room.students?.length > 0
-                                        ? room.students.map(
-                                            (student) => (
-                                                <div
+                        <div className="table-card">
+
+                            <h3>All Hostel Rooms</h3>
+
+                            {rooms.length === 0 ? (
+                                <p>No rooms available.</p>
+                            ) : (
+                                <div className="table-container">
+
+                                    <table>
+
+                                        <thead>
+                                            <tr>
+                                                <th>Room</th>
+                                                <th>Block</th>
+                                                <th>Floor</th>
+                                                <th>Capacity</th>
+                                                <th>Occupied</th>
+                                                <th>Available</th>
+                                                <th>Students</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+
+                                            {rooms.map((room) => (
+                                                <tr key={room._id}>
+
+                                                    <td>
+                                                        {room.roomNumber}
+                                                    </td>
+
+                                                    <td>
+                                                        {room.block}
+                                                    </td>
+
+                                                    <td>
+                                                        {room.floor}
+                                                    </td>
+
+                                                    <td>
+                                                        {room.capacity}
+                                                    </td>
+
+                                                    <td>
+                                                        {room.occupiedBeds}
+                                                    </td>
+
+                                                    <td>
+                                                        {room.capacity -
+                                                            room.occupiedBeds}
+                                                    </td>
+
+                                                    <td>
+                                                        {room.students?.length > 0
+                                                            ? room.students.map(
+                                                                (student) => (
+                                                                    <div
+                                                                        key={
+                                                                            student._id
+                                                                        }
+                                                                    >
+                                                                        {student.name}
+                                                                    </div>
+                                                                )
+                                                            )
+                                                            : "No students"}
+                                                    </td>
+
+                                                </tr>
+                                            ))}
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+                            )}
+
+                        </div>
+
+                    </section>
+                )}
+
+                {/* =========================
+                    STUDENTS
+                ========================= */}
+
+                {activeSection === "students" && (
+                    <section className="content-section">
+
+                        <h2>👨‍🎓 Students</h2>
+
+                        <div className="form-card">
+
+                            <h3>Assign Student to Room</h3>
+
+                            <form onSubmit={handleAssignRoom}>
+
+                                <div className="form-grid">
+
+                                    <div>
+                                        <label>Student</label>
+
+                                        <select
+                                            name="studentId"
+                                            value={assignmentData.studentId}
+                                            onChange={handleAssignmentChange}
+                                            required
+                                        >
+                                            <option value="">
+                                                Select Student
+                                            </option>
+
+                                            {students.map((student) => (
+                                                <option
                                                     key={student._id}
+                                                    value={student._id}
                                                 >
+                                                    {student.name} -{" "}
+                                                    {student.email}
+                                                </option>
+                                            ))}
+
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label>Room</label>
+
+                                        <select
+                                            name="roomId"
+                                            value={assignmentData.roomId}
+                                            onChange={handleAssignmentChange}
+                                            required
+                                        >
+                                            <option value="">
+                                                Select Room
+                                            </option>
+
+                                            {rooms
+                                                .filter(
+                                                    (room) =>
+                                                        room.occupiedBeds <
+                                                        room.capacity
+                                                )
+                                                .map((room) => (
+                                                    <option
+                                                        key={room._id}
+                                                        value={room._id}
+                                                    >
+                                                        {room.roomNumber} -{" "}
+                                                        {room.block}{" "}
+                                                        (Available:{" "}
+                                                        {room.capacity -
+                                                            room.occupiedBeds}
+                                                        )
+                                                    </option>
+                                                ))}
+
+                                        </select>
+                                    </div>
+
+                                </div>
+
+                                <button type="submit">
+                                    Assign Room
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                        <div className="table-card">
+
+                            <h3>Registered Students</h3>
+
+                            <div className="table-container">
+
+                                <table>
+
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Room</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                        {students.map((student) => (
+                                            <tr key={student._id}>
+
+                                                <td>
                                                     {student.name}
-                                                </div>
-                                            )
-                                        )
-                                        : "No students"}
-                                </td>
+                                                </td>
 
-                            </tr>
-                        ))}
+                                                <td>
+                                                    {student.email}
+                                                </td>
 
-                    </tbody>
+                                                <td>
+                                                    {student.room?.roomNumber ||
+                                                        "Not Assigned"}
+                                                </td>
 
-                </table>
-            )}
+                                            </tr>
+                                        ))}
 
-            <hr />
+                                    </tbody>
 
-            {/* Manage Mess Menu Section */}
+                                </table>
 
-            <h2 className="admin-section-title">🍴 Manage Mess Menu</h2>
+                            </div>
 
-            <form onSubmit={handleMessSubmit}>
+                        </div>
 
-                <div>
-                    <label>Day</label>
-                    <br />
+                    </section>
+                )}
 
-                    <select
-                        name="day"
-                        value={messFormData.day}
-                        onChange={handleMessChange}
-                        required
-                    >
-                        <option value="">Select Day</option>
-                        <option value="Monday">Monday</option>
-                        <option value="Tuesday">Tuesday</option>
-                        <option value="Wednesday">Wednesday</option>
-                        <option value="Thursday">Thursday</option>
-                        <option value="Friday">Friday</option>
-                        <option value="Saturday">Saturday</option>
-                        <option value="Sunday">Sunday</option>
-                    </select>
-                </div>
+                {/* =========================
+                    MESS MENU
+                ========================= */}
 
-                <br />
+                {activeSection === "mess" && (
+                    <section className="content-section">
 
-                <div>
-                    <label>Meal</label>
-                    <br />
+                        <h2>🍴 Manage Mess Menu</h2>
 
-                    <select
-                        name="meal"
-                        value={messFormData.meal}
-                        onChange={handleMessChange}
-                        required
-                    >
-                        <option value="">Select Meal</option>
-                        <option value="Breakfast">Breakfast</option>
-                        <option value="Lunch">Lunch</option>
-                        <option value="Snacks">Snacks</option>
-                        <option value="Dinner">Dinner</option>
-                    </select>
-                </div>
+                        <div className="form-card">
 
-                <br />
+                            <h3>Add Mess Menu</h3>
 
-                <div>
-                    <label>Menu</label>
-                    <br />
+                            <form onSubmit={handleMessSubmit}>
 
-                    <input
-                        type="text"
-                        name="menu"
-                        placeholder="Example: Idly, Sambar, Chutney"
-                        value={messFormData.menu}
-                        onChange={handleMessChange}
-                        required
-                    />
-                </div>
+                                <div className="form-grid">
 
-                <br />
+                                    <div>
+                                        <label>Day</label>
 
-                <button type="submit">
-                    Add Mess Menu
-                </button>
+                                        <select
+                                            name="day"
+                                            value={messFormData.day}
+                                            onChange={handleMessChange}
+                                            required
+                                        >
+                                            <option value="">
+                                                Select Day
+                                            </option>
 
-            </form>
+                                            <option value="Monday">
+                                                Monday
+                                            </option>
+                                            <option value="Tuesday">
+                                                Tuesday
+                                            </option>
+                                            <option value="Wednesday">
+                                                Wednesday
+                                            </option>
+                                            <option value="Thursday">
+                                                Thursday
+                                            </option>
+                                            <option value="Friday">
+                                                Friday
+                                            </option>
+                                            <option value="Saturday">
+                                                Saturday
+                                            </option>
+                                            <option value="Sunday">
+                                                Sunday
+                                            </option>
+                                        </select>
+                                    </div>
 
-            <hr />
+                                    <div>
+                                        <label>Meal</label>
 
-            <h3>Current Mess Menu</h3>
+                                        <select
+                                            name="meal"
+                                            value={messFormData.meal}
+                                            onChange={handleMessChange}
+                                            required
+                                        >
+                                            <option value="">
+                                                Select Meal
+                                            </option>
 
-            {messMenus.length === 0 ? (
-                <p>No mess menu added yet.</p>
-            ) : (
-                <table border="1" cellPadding="10">
-                    <thead>
-                        <tr>
-                            <th>Day</th>
-                            <th>Meal</th>
-                            <th>Menu</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
+                                            <option value="Breakfast">
+                                                Breakfast
+                                            </option>
+                                            <option value="Lunch">
+                                                Lunch
+                                            </option>
+                                            <option value="Snacks">
+                                                Snacks
+                                            </option>
+                                            <option value="Dinner">
+                                                Dinner
+                                            </option>
+                                        </select>
+                                    </div>
 
-                    <tbody>
-                        {messMenus.map((item) => (
-                            <tr key={item._id}>
-                                <td>{item.day}</td>
-                                <td>{item.meal}</td>
-                                <td>{item.menu}</td>
-                                <td>
-                                    <button
-                                        onClick={() =>
-                                            handleDeleteMess(item._id)
-                                        }
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
+                                    <div className="full-width">
+                                        <label>Menu</label>
 
-            <hr />
+                                        <input
+                                            type="text"
+                                            name="menu"
+                                            placeholder="Example: Idly, Sambar, Chutney"
+                                            value={messFormData.menu}
+                                            onChange={handleMessChange}
+                                            required
+                                        />
+                                    </div>
 
-            {/* Complaints Section */}
+                                </div>
 
-            <h2 className="admin-section-title">🛠️ Hostel Complaints</h2>
+                                <button type="submit">
+                                    Add Mess Menu
+                                </button>
 
-            <table border="1" cellPadding="10">
+                            </form>
 
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Email</th>
-                        <th>Category</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
+                        </div>
 
-                <tbody>
-                    {complaints.length > 0 ? (
-                        complaints.map((complaint) => (
-                            <tr key={complaint._id}>
-                                <td>
-                                    {complaint.student?.name || "N/A"}
-                                </td>
+                        <div className="table-card">
 
-                                <td>
-                                    {complaint.student?.email || "N/A"}
-                                </td>
+                            <h3>Current Mess Menu</h3>
 
-                                <td>
-                                    {complaint.category}
-                                </td>
+                            {messMenus.length === 0 ? (
+                                <p>No mess menu added yet.</p>
+                            ) : (
+                                <div className="table-container">
 
-                                <td>
-                                    {complaint.description}
-                                </td>
+                                    <table>
 
-                                <td>
-                                    {complaint.status}
-                                </td>
+                                        <thead>
+                                            <tr>
+                                                <th>Day</th>
+                                                <th>Meal</th>
+                                                <th>Menu</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
 
-                                <td>
-                                    <select
-                                        value={complaint.status}
-                                        onChange={(e) =>
-                                            handleComplaintStatus(
-                                                complaint._id,
-                                                e.target.value
-                                            )
-                                        }
-                                    >
-                                        <option value="Pending">
-                                            Pending
-                                        </option>
+                                        <tbody>
 
-                                        <option value="In Progress">
-                                            In Progress
-                                        </option>
+                                            {messMenus.map((item) => (
+                                                <tr key={item._id}>
 
-                                        <option value="Resolved">
-                                            Resolved
-                                        </option>
-                                    </select>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="6">
-                                No complaints submitted.
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
+                                                    <td>{item.day}</td>
 
-            </table>
+                                                    <td>{item.meal}</td>
+
+                                                    <td>{item.menu}</td>
+
+                                                    <td>
+                                                        <button
+                                                            className="delete-btn"
+                                                            onClick={() =>
+                                                                handleDeleteMess(
+                                                                    item._id
+                                                                )
+                                                            }
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </td>
+
+                                                </tr>
+                                            ))}
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+                            )}
+
+                        </div>
+
+                    </section>
+                )}
+
+                {/* =========================
+                    AI INSIGHTS
+                ========================= */}
+
+                {activeSection === "ai" && (
+                    <section className="content-section">
+
+                        <div className="ai-page-header">
+
+                            <div>
+                                <h2>🤖 AI Hostel Insights</h2>
+
+                                <p>
+                                    Analyze hostel complaints using
+                                    AI-powered insights.
+                                </p>
+                            </div>
+
+                            <button
+                                className="ai-generate-btn"
+                                onClick={fetchAIInsights}
+                                disabled={aiLoading}
+                            >
+                                {aiLoading
+                                    ? "Analyzing..."
+                                    : "Generate AI Insights"}
+                            </button>
+
+                        </div>
+
+                        {aiError && (
+                            <div className="error-message">
+                                {aiError}
+                            </div>
+                        )}
+
+                        {aiInsights && (
+                            <div className="ai-result-card">
+
+                                <h3>
+                                    📊 AI Analysis Report
+                                </h3>
+
+                                {typeof aiInsights === "string" ? (
+                                    <pre>{aiInsights}</pre>
+                                ) : (
+                                    <>
+                                        <div className="ai-stats-grid">
+
+                                            <div className="ai-stat-card">
+                                                <span>⏳</span>
+                                                <h4>Pending</h4>
+                                                <strong>
+                                                    {aiInsights.pending}
+                                                </strong>
+                                            </div>
+
+                                            <div className="ai-stat-card">
+                                                <span>✅</span>
+                                                <h4>Resolved</h4>
+                                                <strong>
+                                                    {aiInsights.resolved}
+                                                </strong>
+                                            </div>
+
+                                            <div className="ai-stat-card">
+                                                <span>🔍</span>
+                                                <h4>Common Category</h4>
+                                                <strong>
+                                                    {aiInsights.mostCommonCategory}
+                                                </strong>
+                                            </div>
+
+                                        </div>
+
+                                        <div className="ai-details-grid">
+
+                                            <div className="ai-detail-card">
+                                                <h3>⚠️ Key Problems</h3>
+
+                                                <ul>
+                                                    {aiInsights.problems?.map(
+                                                        (problem, index) => (
+                                                            <li key={index}>
+                                                                {problem}
+                                                            </li>
+                                                        )
+                                                    )}
+                                                </ul>
+                                            </div>
+
+                                            <div className="ai-detail-card recommendation">
+                                                <h3>
+                                                    💡 AI Recommendations
+                                                </h3>
+
+                                                <ul>
+                                                    {aiInsights.recommendations?.map(
+                                                        (
+                                                            recommendation,
+                                                            index
+                                                        ) => (
+                                                            <li key={index}>
+                                                                {recommendation}
+                                                            </li>
+                                                        )
+                                                    )}
+                                                </ul>
+                                            </div>
+
+                                        </div>
+                                    </>
+                                )}
+
+                            </div>
+                        )}
+
+                        {!aiInsights && !aiLoading && (
+                            <div className="ai-empty-card">
+                                <div>🤖</div>
+
+                                <h3>
+                                    No AI analysis generated yet
+                                </h3>
+
+                                <p>
+                                    Click "Generate AI Insights" to
+                                    analyze the current hostel complaints.
+                                </p>
+                            </div>
+                        )}
+
+                    </section>
+                )}
+
+                {/* =========================
+                    COMPLAINTS
+                ========================= */}
+
+                {activeSection === "complaints" && (
+                    <section className="content-section">
+
+                        <h2>🛠️ Hostel Complaints</h2>
+
+                        <div className="table-card">
+
+                            <h3>Student Complaints</h3>
+
+                            <div className="table-container">
+
+                                <table>
+
+                                    <thead>
+                                        <tr>
+                                            <th>Student</th>
+                                            <th>Email</th>
+                                            <th>Category</th>
+                                            <th>Description</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                        {complaints.length > 0 ? (
+                                            complaints.map((complaint) => (
+                                                <tr
+                                                    key={complaint._id}
+                                                >
+
+                                                    <td>
+                                                        {complaint.student?.name ||
+                                                            "N/A"}
+                                                    </td>
+
+                                                    <td>
+                                                        {complaint.student?.email ||
+                                                            "N/A"}
+                                                    </td>
+
+                                                    <td>
+                                                        {complaint.category}
+                                                    </td>
+
+                                                    <td>
+                                                        {complaint.description}
+                                                    </td>
+
+                                                    <td>
+                                                        <span
+                                                            className={`status ${complaint.status
+                                                                .toLowerCase()
+                                                                .replace(
+                                                                    " ",
+                                                                    "-"
+                                                                )}`}
+                                                        >
+                                                            {complaint.status}
+                                                        </span>
+                                                    </td>
+
+                                                    <td>
+                                                        <select
+                                                            value={
+                                                                complaint.status
+                                                            }
+                                                            onChange={(e) =>
+                                                                handleComplaintStatus(
+                                                                    complaint._id,
+                                                                    e.target.value
+                                                                )
+                                                            }
+                                                        >
+                                                            <option value="Pending">
+                                                                Pending
+                                                            </option>
+
+                                                            <option value="In Progress">
+                                                                In Progress
+                                                            </option>
+
+                                                            <option value="Resolved">
+                                                                Resolved
+                                                            </option>
+                                                        </select>
+                                                    </td>
+
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="6">
+                                                    No complaints submitted.
+                                                </td>
+                                            </tr>
+                                        )}
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+                )}
+
+            </main>
 
         </div>
     );
