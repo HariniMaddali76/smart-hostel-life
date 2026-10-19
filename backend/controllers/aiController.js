@@ -22,8 +22,8 @@ const getAIInsights = async (req, res) => {
         }));
 
         const model = genAI.getGenerativeModel({
-          model: "gemini-3.6-flash"
-      }); 
+    model: "gemini-3.5-flash-lite"
+});
 
         const prompt = `
 You are an AI assistant for a hostel management system.

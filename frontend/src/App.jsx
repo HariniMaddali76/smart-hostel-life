@@ -9,7 +9,10 @@ import AdminRegister from "./pages/AdminRegister";
 import Complaints from "./pages/Complaints";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MessMenu from "./pages/MessMenu";
-
+import ExperimentWorkspace from "./pages/ExperimentWorkspace";
+import Personas from "./pages/Personas";
+import Interview from "./pages/Interview";
+import SurveyMode from "./pages/SurveyMode";
 
 function App() {
     return (
@@ -70,10 +73,19 @@ function App() {
             <Route path="/student" element={<StudentDashboard />} />
             <Route path="/mess-menu" element={<MessMenu />} />
             <Route
-    path="/mess-menu"
-    element={<MessMenu />}
+                 path="/mess-menu"
+               element={<MessMenu />}
 />
-
+              <Route
+    path="/workspace"
+    element={<ExperimentWorkspace />}
+/>
+<Route
+    path="/personas"
+    element={<Personas />}
+/>
+<Route path="/interview/:personaId" element={<Interview />} />
+<Route path="/survey" element={<SurveyMode />} />
             </Routes>
 
         </BrowserRouter>
