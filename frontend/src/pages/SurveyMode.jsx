@@ -102,7 +102,7 @@
 //             setLoading(true);
 
 //             const response = await fetch(
-//                 "http://localhost:5000/api/personas/survey",
+//                 `${API_BASE_URL}/personas/survey`,
 //                 {
 //                     method: "POST",
 //                     headers: {
@@ -162,7 +162,7 @@
 //             ).map((item) => item.question);
 
 //             const response = await fetch(
-//                 "http://localhost:5000/api/personas/insights",
+//                 `${API_BASE_URL}/personas/insights`,
 //                 {
 //                     method: "POST",
 //                     headers: {
@@ -921,6 +921,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SurveyMode.css";
 import { jsPDF } from "jspdf";
+import { API_BASE_URL } from "../services/api";
 
 function SurveyMode() {
     const navigate = useNavigate();
@@ -1021,7 +1022,7 @@ function SurveyMode() {
             setLoading(true);
 
             const response = await fetch(
-                "http://localhost:5000/api/personas/survey",
+                `${API_BASE_URL}/personas/survey`,
                 {
                     method: "POST",
                     headers: {
@@ -1080,7 +1081,7 @@ function SurveyMode() {
             ).map((item) => item.question);
 
             const response = await fetch(
-                "http://localhost:5000/api/personas/insights",
+                `${API_BASE_URL}/personas/insights`,
                 {
                     method: "POST",
                     headers: {

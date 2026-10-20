@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { API_BASE_URL } from "../services/api";
 import "./Interview.css";
 
 function Interview() {
@@ -67,7 +68,7 @@ function Interview() {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/personas/chat",
+                `${API_BASE_URL}/personas/chat`,
                 {
                     method: "POST",
 

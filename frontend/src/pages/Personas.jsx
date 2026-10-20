@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../services/api";
 import "./Personas.css";
 
 function Personas() {
@@ -32,7 +33,7 @@ function Personas() {
             }
 
             const response = await fetch(
-                "http://localhost:5000/api/personas/generate",
+                `${API_BASE_URL}/personas/generate`,
                 {
                     method: "POST",
                     headers: {
